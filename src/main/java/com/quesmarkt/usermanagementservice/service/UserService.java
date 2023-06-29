@@ -1,7 +1,7 @@
 package com.quesmarkt.usermanagementservice.service;
 
-import com.quesmarkt.usermanagementservice.data.entity.User;
 import com.quesmarkt.usermanagementservice.data.repository.UserRepository;
+import com.quesmarkt.usermanagementservice.data.response.ServiceResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +15,9 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public void test() {
-        User user = new User();
-        user.setName("anil");
-        userRepository.insert(user);
+    public ServiceResponse<Boolean> isExistByEmail(String email) {
+        return new ServiceResponse<>(userRepository.existsByEmail(email));
     }
+
 
 }
