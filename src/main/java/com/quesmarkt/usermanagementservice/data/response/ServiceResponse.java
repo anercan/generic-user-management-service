@@ -18,5 +18,9 @@ public class ServiceResponse<T> {
         this.value = value;
     }
 
-
+    public ServiceResponse(HttpStatus status, T value, String message) {
+        this.status = status;
+        this.value = value;
+        this.message = message;
+    }
 }
