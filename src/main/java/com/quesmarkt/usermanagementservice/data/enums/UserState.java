@@ -3,6 +3,6 @@ package com.quesmarkt.usermanagementservice.data.enums;
 /**
  * @author anercan
  */
-public enum ServiceResponseStatus {
-    SUCCEED,FAILED,NOT_FOUND
+public enum UserState {
+    WAITING_FOR_SET_PASSWORD, ACTIVE, PASSIVE
 }

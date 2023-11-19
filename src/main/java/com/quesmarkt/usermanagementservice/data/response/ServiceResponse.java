@@ -1,26 +1,17 @@
 package com.quesmarkt.usermanagementservice.data.response;
 
-import lombok.Data;
-import org.springframework.http.HttpStatus;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author anercan
  */
 
-@Data
-public class ServiceResponse<T> {
-
-    private HttpStatus status = HttpStatus.OK;
-    private T value;
-    private String message = "";
-
-    public ServiceResponse(T value) {
-        this.value = value;
-    }
-
-    public ServiceResponse(HttpStatus status, T value, String message) {
-        this.status = status;
-        this.value = value;
-        this.message = message;
-    }
+@Getter
+@Setter
+@SuperBuilder
+public class ServiceResponse {
+    private Integer status;
+    private String message;
 }

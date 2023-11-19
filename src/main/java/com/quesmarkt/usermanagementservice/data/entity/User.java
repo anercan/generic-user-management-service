@@ -1,10 +1,12 @@
 package com.quesmarkt.usermanagementservice.data.entity;
 
+import com.quesmarkt.usermanagementservice.data.enums.UserState;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 /**
  * @author anercan
@@ -14,12 +16,13 @@ import java.time.ZonedDateTime;
 @Document(collection = "users")
 public class User {
     @Id
-    private String id;
+    private UUID id;
     private String email;
     private String username;
     private String password;
     private ZonedDateTime createdDate;
-    private ZonedDateTime lastLogin;
     private String avatarUrl;
-    private boolean isActive;
+    private Long appId;
+    private UserState state;
+    private String zone;
 }

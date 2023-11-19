@@ -1,6 +1,5 @@
 package com.quesmarkt.usermanagementservice.controller;
 
-import com.quesmarkt.usermanagementservice.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,13 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @AllArgsConstructor
 @RequestMapping("/sign-in")
-public class SignInController extends BaseController {
+public class SignInController {
 
-    private final UserService userService;
-
-   /* @GetMapping
-    public ResponseEntity<SignInResponse> signIn(SignInRequest request) {
-        return createResponseEntity(userService.signIn());
-    }*/
 
 }

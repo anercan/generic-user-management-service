@@ -1,16 +1,16 @@
 package com.quesmarkt.usermanagementservice.data.response;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author anercan
  */
 
-@Data
-@Builder
-public class SignUpResponse {
-
-    String jwt;
-
+@Getter
+@Setter
+@SuperBuilder
+public class SignUpResponse extends ServiceResponse {
+    private String jwt;
 }

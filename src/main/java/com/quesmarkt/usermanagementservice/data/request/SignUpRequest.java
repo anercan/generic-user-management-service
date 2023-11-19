@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 public class SignUpRequest {
-
-    private String email;
-
+    private String mail;
+    private String password;
+    private String username;
 }

@@ -1,11 +1,11 @@
-package com.quesmarkt.usermanagementservice.service;
+package com.quesmarkt.usermanagementservice.manager;
 
 import java.util.logging.Logger;
 
 /**
  * @author anercan
  */
-public class BaseService {
+public class BaseManager {
 
     Logger log = Logger.getAnonymousLogger();
 
