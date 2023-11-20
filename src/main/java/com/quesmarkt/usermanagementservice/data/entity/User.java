@@ -5,8 +5,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.ZonedDateTime;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 /**
  * @author anercan
@@ -16,11 +15,11 @@ import java.util.UUID;
 @Document(collection = "users")
 public class User {
     @Id
-    private UUID id;
+    private String id;
     private String email;
     private String username;
     private String password;
-    private ZonedDateTime createdDate;
+    private LocalDateTime createdDate;
     private String avatarUrl;
     private Long appId;
     private UserState state;

@@ -1,15 +1,14 @@
 package com.quesmarkt.usermanagementservice.data.entity;
 
-import java.time.ZonedDateTime;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 /**
  * @author anercan
  */
 public class LoginTransactions {
 
-    private UUID userId;
-    private ZonedDateTime date;
+    private String userId;
+    private LocalDateTime date;
     private String ip;
     private String zone;
 
