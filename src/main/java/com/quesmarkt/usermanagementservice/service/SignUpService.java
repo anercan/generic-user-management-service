@@ -27,11 +27,11 @@ public class SignUpService extends BaseService {
     public ResponseEntity<SignUpResponse> basicSignUp(SignUpRequest signUpRequest) {
         try {
             if (!isRequestValid(signUpRequest)) {
-                return ResponseEntity.badRequest().body(SignUpResponse.builder().message("").build());
+                return ResponseEntity.badRequest().body(SignUpResponse.builder().message("Invalid Request.").build());
             }
             Boolean srExistByMail = userManager.isExistByEmail(signUpRequest.getMail());
             if (BooleanUtils.isTrue(srExistByMail)) {
-                return ResponseEntity.badRequest().body(SignUpResponse.builder().message("").build());
+                return ResponseEntity.badRequest().body(SignUpResponse.builder().message("User has registered already.").status(-1).build());
             }
             User savedUser = userManager.insert(createInitialUser(signUpRequest));
             if (Objects.nonNull(savedUser)) {
