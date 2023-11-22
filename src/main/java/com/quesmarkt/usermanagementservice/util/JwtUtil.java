@@ -16,7 +16,7 @@ public class JwtUtil {
     private static final String REFRESH = "refresh";
     private static final String JWT_SECRET = System.getProperty("JWT_SECRET");
 
-    public static String createJWT(String id, String username) {
+    public static String createJWT(String id, String username, Long days) {
         if (StringUtils.isEmpty(id) || StringUtils.isEmpty(username)) {
             return null;
         }
@@ -24,16 +24,17 @@ public class JwtUtil {
             return Jwts.builder()
                     .setClaims(getClaims(id, username))
                     .setIssuedAt(new Date(System.currentTimeMillis()))
-                    .setExpiration(new Date(System.currentTimeMillis() + getSessionTime()))
-                    .setSubject(REFRESH).signWith(getKey())
+                    .setExpiration(new Date(System.currentTimeMillis() + getSessionTime(days)))
+                    .setSubject(REFRESH)
+                    .signWith(getKey())
                     .compact();
         } catch (Exception e) {
             return null;
         }
     }
 
-    private static long getSessionTime() {
-        return 1800000L;
+    private static long getSessionTime(Long days) {
+        return days * 24 * 60 * 60 * 1000L;
     }
 
     private static Claims getClaims(String id, String username) {

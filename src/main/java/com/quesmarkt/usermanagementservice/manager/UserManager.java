@@ -6,6 +6,8 @@ import com.quesmarkt.usermanagementservice.manager.exception.DataAccessException
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * @author anercan
  */
@@ -27,6 +29,15 @@ public class UserManager extends BaseManager {
     public User insert(User user) {
         try {
             return userRepository.insert(user);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    public User getUserByMail(String mail) {
+        try {
+            Optional<User> optionalUser = userRepository.findById(mail);
+            return optionalUser.orElse(null);
         } catch (Exception e) {
             throw new DataAccessException(e);
         }
