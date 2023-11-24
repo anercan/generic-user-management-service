@@ -34,10 +34,10 @@ public class LoggingAspect {
         String response = "";
         if (proceed instanceof ResponseEntity<?>) {
             Object body = ((ResponseEntity<?>) proceed).getBody();
-            response = "Code:" + ((ResponseEntity<?>) proceed).getStatusCode() + " Response:" + (Objects.nonNull(body) ? body : null);
+            response = "ResponseBody:" + (Objects.nonNull(body) ? body : null) + "ResponseCode:" + ((ResponseEntity<?>) proceed).getStatusCode();
         }
         String request = Arrays.stream(proceedingJoinPoint.getArgs()).map(Objects::toString).reduce("", String::concat);
-        logger.info("Request:{} to {} finished in {} ms.{}", request, methodName, elapsedTime, response);
+        logger.info("RequestBody:{} to {} finished in {} ms.{}", request, methodName, elapsedTime, response);
         return proceed;
     }
 }
