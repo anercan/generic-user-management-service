@@ -16,6 +16,6 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @NoArgsConstructor
 public class ServiceResponse {
-    private Integer status;
+    private Integer status = 0;
     private String message;
 }

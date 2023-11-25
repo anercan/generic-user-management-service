@@ -36,7 +36,7 @@ public class UserManager extends BaseManager {
 
     public User getUserByMail(String mail) {
         try {
-            Optional<User> optionalUser = userRepository.findById(mail);
+            Optional<User> optionalUser = userRepository.findByEmail(mail);
             return optionalUser.orElse(null);
         } catch (Exception e) {
             throw new DataAccessException(e);

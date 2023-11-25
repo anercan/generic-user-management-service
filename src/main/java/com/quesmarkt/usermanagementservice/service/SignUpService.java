@@ -31,7 +31,7 @@ public class SignUpService extends BaseService {
             }
             Boolean srExistByMail = userManager.isExistByEmail(signUpRequest.getMail());
             if (BooleanUtils.isTrue(srExistByMail)) {
-                return ResponseEntity.badRequest().body(SignUpResponse.builder().message("User has registered already.").status(-1).build());
+                return ResponseEntity.badRequest().body(SignUpResponse.builder().message("User has registered already.").build());
             }
             User savedUser = userManager.insert(createInitialUser(signUpRequest));
             if (Objects.nonNull(savedUser)) {
@@ -41,6 +41,7 @@ public class SignUpService extends BaseService {
                 return ResponseEntity.internalServerError().build();
             }
         } catch (Exception e) {
+            logger.error("basicSignUp got exception", e);
             return ResponseEntity.badRequest().build();
         }
     }

@@ -1,15 +1,22 @@
 package com.quesmarkt.usermanagementservice.data.entity;
 
+import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDateTime;
 
 /**
  * @author anercan
  */
-public class LoginTransactions {
+
+@Data
+@Document(collection = "loginTransaction")
+public class LoginTransaction {
 
     private String userId;
     private LocalDateTime date;
     private String ip;
     private String zone;
+    private boolean isLoginSucceed;
 
 }
