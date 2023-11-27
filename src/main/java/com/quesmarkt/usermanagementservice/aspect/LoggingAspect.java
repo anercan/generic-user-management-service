@@ -34,7 +34,7 @@ public class LoggingAspect {
         String response = "";
         if (proceed instanceof ResponseEntity<?>) {
             Object body = ((ResponseEntity<?>) proceed).getBody();
-            response = "ResponseBody:" + (Objects.nonNull(body) ? body : null) + "ResponseCode:" + ((ResponseEntity<?>) proceed).getStatusCode();
+            response = "ResponseBody:" + (Objects.nonNull(body) ? body : null) + " ResponseCode:" + ((ResponseEntity<?>) proceed).getStatusCode();
         }
         String request = Arrays.stream(proceedingJoinPoint.getArgs()).map(Objects::toString).reduce("", String::concat);
         logger.info("RequestBody:{} to {} finished in {} ms.{}", request, methodName, elapsedTime, response);
