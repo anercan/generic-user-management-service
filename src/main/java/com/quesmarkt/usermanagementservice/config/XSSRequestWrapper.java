@@ -18,10 +18,8 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
         if (values == null) {
             return null;
         }
-
-        int count = values.length;
-        String[] encodedValues = new String[count];
-        for (int i = 0; i < count; i++) {
+        String[] encodedValues = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
             encodedValues[i] = stripXSS(values[i]);
         }
         return encodedValues;
