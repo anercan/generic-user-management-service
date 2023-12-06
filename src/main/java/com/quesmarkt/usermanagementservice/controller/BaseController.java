@@ -5,5 +5,5 @@ package com.quesmarkt.usermanagementservice.controller;
  */
 public class BaseController {
 
-    
+
 }
