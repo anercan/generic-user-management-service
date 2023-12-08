@@ -1,13 +1,13 @@
 package com.quesmarkt.usermanagementservice.data.repository;
 
 import com.quesmarkt.usermanagementservice.data.entity.LoginTransaction;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import org.socialsignin.spring.data.dynamodb.repository.EnableScan;
+import org.springframework.data.repository.CrudRepository;
 
 /**
  * @author anercan
  */
 
-@Repository
-public interface LoginTransactionRepository extends MongoRepository<LoginTransaction, String> {
+@EnableScan
+public interface LoginTransactionRepository extends CrudRepository<LoginTransaction, String> {
 }

@@ -1,13 +1,13 @@
 package com.quesmarkt.usermanagementservice.data.repository;
 
 import com.quesmarkt.usermanagementservice.data.entity.User;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import org.socialsignin.spring.data.dynamodb.repository.EnableScan;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-@Repository
-public interface UserRepository extends MongoRepository<User, String> {
+@EnableScan
+public interface UserRepository extends CrudRepository<User, String> {
 
     boolean existsByEmail(String email);
 

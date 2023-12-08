@@ -2,7 +2,6 @@ package com.quesmarkt.usermanagementservice.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
-import org.owasp.esapi.ESAPI;
 
 import java.util.regex.Pattern;
 
@@ -39,7 +38,7 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
 
     private String stripXSS(String value) {
         if (value != null) {
-            value = ESAPI.encoder().canonicalize(value);
+            //value = ESAPI.encoder().canonicalize(value);
 
             // Avoid null characters
             value = value.replaceAll("", "");

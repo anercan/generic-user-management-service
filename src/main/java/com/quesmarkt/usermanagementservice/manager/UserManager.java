@@ -28,7 +28,7 @@ public class UserManager extends BaseManager {
 
     public User insert(User user) {
         try {
-            return userRepository.insert(user);
+            return userRepository.save(user);
         } catch (Exception e) {
             throw new DataAccessException(e);
         }

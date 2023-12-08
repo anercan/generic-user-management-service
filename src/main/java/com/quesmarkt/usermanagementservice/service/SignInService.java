@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.TimeZone;
 
@@ -56,7 +56,7 @@ public class SignInService extends BaseService {
         try {
             LoginTransaction loginTransaction = new LoginTransaction();
             loginTransaction.setIp(getIpAddress());
-            loginTransaction.setDate(LocalDateTime.now());
+            loginTransaction.setDate(ZonedDateTime.now());
             loginTransaction.setLoginSucceed(isLoginSucceed);
             TimeZone timeZone = RequestContextUtils.getTimeZone(request);
             loginTransaction.setZone(Objects.nonNull(timeZone) ? timeZone.getDisplayName() : null); // todo use third party for zone info
