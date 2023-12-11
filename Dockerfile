@@ -6,7 +6,6 @@ WORKDIR /app
 # Copy only the necessary files
 COPY pom.xml .
 COPY src ./src
-COPY awslogs.conf /etc/awslogs/awslogs.conf
 
 # Build the application
 RUN mvn clean package
