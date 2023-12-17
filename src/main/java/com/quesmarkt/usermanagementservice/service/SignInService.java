@@ -46,7 +46,7 @@ public class SignInService extends BaseService {
         } catch (Exception e) {
             isLoginSucceed = false;
             logger.error("basicSignIn got exception", e);
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.internalServerError().build();
         } finally {
             saveLoginTransaction(userId, isLoginSucceed);
         }

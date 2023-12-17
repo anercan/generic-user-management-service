@@ -21,7 +21,7 @@ public class SignInController {
 
     private final SignInService signInService;
 
-    @PostMapping
+    @PostMapping("/basic")
     public ResponseEntity<SignInResponse> signUp(@RequestBody SignInRequest request) {
         return signInService.basicSignIn(request);
     }
