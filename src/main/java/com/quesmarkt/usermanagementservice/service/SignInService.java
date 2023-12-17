@@ -9,6 +9,7 @@ import com.quesmarkt.usermanagementservice.manager.UserManager;
 import com.quesmarkt.usermanagementservice.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.RequestContextUtils;
@@ -35,13 +36,17 @@ public class SignInService extends BaseService {
         String userId = null;
         try {
             User user = userManager.getUserByMail(request.getEmail());
-            userId = user.getId();
-            if (isMailAndPasswordMatch(request, user)) {
-                isLoginSucceed = true;
-                String jwt = JwtUtil.createJWT(user.getId(), user.getUsername(), 30L);
-                return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
+            if (user != null) {
+                userId = user.getId();
+                if (isMailAndPasswordMatch(request, user)) {
+                    isLoginSucceed = true;
+                    String jwt = JwtUtil.createJWT(user.getId(), user.getUsername(), 30L);
+                    return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
+                } else {
+                    return ResponseEntity.ok(SignInResponse.builder().message("Wrong credentials.").status(-1).build());
+                }
             } else {
-                return ResponseEntity.ok(SignInResponse.builder().message("basicSignIn.mailNotFound").status(-1).build());
+                return ResponseEntity.ok(SignInResponse.builder().message("Mail not found.").status(-2).build());
             }
         } catch (Exception e) {
             isLoginSucceed = false;
@@ -53,19 +58,20 @@ public class SignInService extends BaseService {
     }
 
     private void saveLoginTransaction(String userId, boolean isLoginSucceed) {
-        try {
-            LoginTransaction loginTransaction = new LoginTransaction();
-            loginTransaction.setIp(getIpAddress());
-            loginTransaction.setDate(ZonedDateTime.now());
-            loginTransaction.setLoginSucceed(isLoginSucceed);
-            TimeZone timeZone = RequestContextUtils.getTimeZone(request);
-            loginTransaction.setZone(Objects.nonNull(timeZone) ? timeZone.getDisplayName() : null); // todo use third party for zone info
-            loginTransaction.setUserId(userId);
-            loginTransactionManager.saveNewLoginTransaction(loginTransaction);
-        } catch (Exception e) {
-            logger.error("saveLoginTransaction got exception ", e);
+        if (StringUtils.isNotEmpty(userId)) {
+            try {
+                LoginTransaction loginTransaction = new LoginTransaction();
+                loginTransaction.setIp(getIpAddress());
+                loginTransaction.setDate(ZonedDateTime.now());
+                loginTransaction.setLoginSucceed(isLoginSucceed);
+                TimeZone timeZone = RequestContextUtils.getTimeZone(request);
+                loginTransaction.setZone(Objects.nonNull(timeZone) ? timeZone.getDisplayName() : null); // todo use third party for zone info
+                loginTransaction.setUserId(userId);
+                loginTransactionManager.saveNewLoginTransaction(loginTransaction);
+            } catch (Exception e) {
+                logger.error("saveLoginTransaction got exception ", e);
+            }
         }
-
     }
 
     private String getIpAddress() {
