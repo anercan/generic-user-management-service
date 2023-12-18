@@ -40,7 +40,7 @@ public class SignInService extends BaseService {
                 userId = user.getId();
                 if (isMailAndPasswordMatch(request, user)) {
                     isLoginSucceed = true;
-                    String jwt = JwtUtil.createJWT(user.getId(), user.getUsername(), 30L);
+                    String jwt = JwtUtil.createJWT(user.getId(), user.getUsername(), request.getJwtClaims(), request.getExpirationDay());
                     return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
                 } else {
                     return ResponseEntity.ok(SignInResponse.builder().message("Wrong credentials.").status(-1).build());

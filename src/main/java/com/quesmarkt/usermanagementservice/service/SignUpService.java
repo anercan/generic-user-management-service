@@ -35,7 +35,7 @@ public class SignUpService extends BaseService {
             }
             User savedUser = userManager.insert(createInitialUser(signUpRequest));
             if (Objects.nonNull(savedUser)) {
-                String jwt = JwtUtil.createJWT(savedUser.getId(), savedUser.getUsername(), 7L);
+                String jwt = JwtUtil.createJWT(savedUser.getId(), savedUser.getUsername(), signUpRequest.getJwtClaims(), signUpRequest.getExpirationDay());
                 return ResponseEntity.ok(SignUpResponse.builder().jwt(jwt).build());
             } else {
                 return ResponseEntity.internalServerError().build();
