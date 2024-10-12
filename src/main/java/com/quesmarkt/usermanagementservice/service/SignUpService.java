@@ -10,9 +10,10 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
+import java.util.Optional;
 
 import static com.quesmarkt.usermanagementservice.util.UserUtils.createInitialUser;
+import static com.quesmarkt.usermanagementservice.util.UserUtils.getUserPremiumType;
 
 /**
  * @author anercan
@@ -33,9 +34,10 @@ public class SignUpService extends BaseService {
             if (BooleanUtils.isTrue(srExistByMail)) {
                 return ResponseEntity.ok().body(SignUpResponse.builder().message("User has registered already.").status(-1).build());
             }
-            User savedUser = userManager.insert(createInitialUser(signUpRequest));
-            if (Objects.nonNull(savedUser)) {
-                String jwt = JwtUtil.createJWT(savedUser.getId(), savedUser.getUsername(), signUpRequest.getJwtClaims(), signUpRequest.getExpirationDay());
+            Optional<User> savedUserOpt = userManager.insert(createInitialUser(signUpRequest));
+            if (savedUserOpt.isPresent()) {
+                User savedUser = savedUserOpt.get();
+                String jwt = JwtUtil.createJWT(savedUser.getId(), signUpRequest.getJwtClaims(), signUpRequest.getExpirationDay(), signUpRequest.getAppId(), getUserPremiumType(savedUser.getPremiumInfo()));
                 return ResponseEntity.ok(SignUpResponse.builder().jwt(jwt).build());
             } else {
                 return ResponseEntity.internalServerError().build();

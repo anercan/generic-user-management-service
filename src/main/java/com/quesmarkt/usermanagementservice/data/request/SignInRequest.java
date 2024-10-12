@@ -1,6 +1,9 @@
 package com.quesmarkt.usermanagementservice.data.request;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
@@ -9,9 +12,14 @@ import java.util.Map;
  */
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SignInRequest {
     private String email;
     private String password;
     private Map<String,String> jwtClaims;
-    private Long expirationDay;
+    private Long expirationDays;
+    private int appId;
+    private SignInType signInType;
 }

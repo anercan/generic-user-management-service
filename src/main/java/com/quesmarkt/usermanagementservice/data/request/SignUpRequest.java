@@ -15,4 +15,5 @@ public class SignUpRequest {
     private String username;
     private Map<String,String> jwtClaims;
     private Long expirationDay;
+    private int appId;
 }

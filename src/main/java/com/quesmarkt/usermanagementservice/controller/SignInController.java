@@ -1,5 +1,6 @@
 package com.quesmarkt.usermanagementservice.controller;
 
+import com.quesmarkt.usermanagementservice.data.request.GoogleLoginRequest;
 import com.quesmarkt.usermanagementservice.data.request.SignInRequest;
 import com.quesmarkt.usermanagementservice.data.response.SignInResponse;
 import com.quesmarkt.usermanagementservice.service.SignInService;
@@ -24,5 +25,10 @@ public class SignInController {
     @PostMapping("/basic")
     public ResponseEntity<SignInResponse> signUp(@RequestBody SignInRequest request) {
         return signInService.basicSignIn(request);
+    }
+
+    @PostMapping("/google-auth")
+    public ResponseEntity<SignInResponse> googleSignIn(@RequestBody GoogleLoginRequest request) {
+        return signInService.googleSignIn(request);
     }
 }

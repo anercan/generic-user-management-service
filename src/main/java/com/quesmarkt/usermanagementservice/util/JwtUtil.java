@@ -1,5 +1,6 @@
 package com.quesmarkt.usermanagementservice.util;
 
+import com.quesmarkt.usermanagementservice.data.enums.PremiumType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,17 +15,19 @@ import java.util.Map;
 public class JwtUtil {
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
     private static final String USERNAME = "username";
+    private static final String APP_ID = "app-id";
     private static final String USER_ID = "user-id";
     private static final String REFRESH = "refresh";
+    public static final String PREMIUM_TYPE = "premium-type";
     private static final String JWT_SECRET = System.getProperty("JWT_SECRET");
 
-    public static String createJWT(String id, String username, Map<String, String> jwtClaims, Long days) {
-        if (StringUtils.isEmpty(id) || StringUtils.isEmpty(username)) {
+    public static String createJWT(String id, Map<String, String> jwtClaims, Long days, int appId, PremiumType premiumType) {
+        if (StringUtils.isEmpty(id)) {
             return null;
         }
         try {
             return Jwts.builder()
-                    .setClaims(getClaims(id, username, jwtClaims))
+                    .setClaims(getClaims(id, jwtClaims, appId, premiumType))
                     .setIssuedAt(new Date(System.currentTimeMillis()))
                     .setExpiration(new Date(System.currentTimeMillis() + getSessionTime(days)))
                     .setSubject(REFRESH)
@@ -42,10 +45,11 @@ public class JwtUtil {
         return 24 * 60 * 60 * 1000L;
     }
 
-    private static Claims getClaims(String id, String username, Map<String, String> jwtClaims) {
+    private static Claims getClaims(String id, Map<String, String> jwtClaims, int appId, PremiumType premiumType) {
         Claims claims = Jwts.claims();
         claims.put(USER_ID, id);
-        claims.put(USERNAME, username);
+        claims.put(APP_ID, appId);
+        claims.put(PREMIUM_TYPE, premiumType);
         if (!CollectionUtils.isEmpty(jwtClaims)) {
             claims.putAll(jwtClaims);
         }
