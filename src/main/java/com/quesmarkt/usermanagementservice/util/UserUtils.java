@@ -37,14 +37,14 @@ public class UserUtils {
         user.setAvatarUrl((String) payload.get("picture"));
         user.setName((String) payload.get("name"));
         PremiumInfo premiumInfo = new PremiumInfo();
-        premiumInfo.setPremiumType(PremiumType.DEFAULT);
+        premiumInfo.setPremiumType(PremiumType.NONE);
         user.setPremiumInfo(premiumInfo);
         return user;
     }
 
     public static PremiumType getUserPremiumType(PremiumInfo premiumInfo) {
         if (premiumInfo == null) {
-            return PremiumType.DEFAULT;
+            return PremiumType.NONE;
         }
         return premiumInfo.getPremiumType();
     }

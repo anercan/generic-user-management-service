@@ -20,7 +20,7 @@ public class PremiumInfo {
 
     @DynamoDBAttribute(attributeName = "premiumType")
     @DynamoDBTypeConvertedEnum
-    private PremiumType premiumType = PremiumType.DEFAULT;
+    private PremiumType premiumType = PremiumType.NONE;
 
     @DynamoDBTypeConverted(converter = ZonedDateTypeConverter.class)
     @DynamoDBAttribute(attributeName = "expireDate")
