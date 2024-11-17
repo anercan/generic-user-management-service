@@ -31,6 +31,9 @@ public class LoginTransaction {
     @DynamoDBAttribute(attributeName = "zone")
     private String zone;
 
+    @DynamoDBAttribute(attributeName = "appId")
+    private Integer appId;
+
     @DynamoDBAttribute(attributeName = "isLoginSucceed")
     private boolean loginSucceed;
 

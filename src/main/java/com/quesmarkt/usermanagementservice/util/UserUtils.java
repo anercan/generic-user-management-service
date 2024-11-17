@@ -42,10 +42,18 @@ public class UserUtils {
         return user;
     }
 
+    public static boolean isPremiumUser(PremiumInfo premiumInfo) {
+        return !PremiumType.NONE.equals(getUserPremiumType(premiumInfo));
+    }
+
     public static PremiumType getUserPremiumType(PremiumInfo premiumInfo) {
         if (premiumInfo == null) {
             return PremiumType.NONE;
         }
         return premiumInfo.getPremiumType();
+    }
+
+    public static boolean hasSubscriptionExpired(User user) {
+        return user.getPremiumInfo() != null && user.getPremiumInfo().getExpireDate() < System.currentTimeMillis();
     }
 }

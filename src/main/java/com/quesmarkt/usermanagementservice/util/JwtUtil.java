@@ -21,7 +21,7 @@ public class JwtUtil {
     public static final String PREMIUM_TYPE = "premium-type";
     private static final String JWT_SECRET = System.getProperty("JWT_SECRET");
 
-    public static String createJWT(String id, Map<String, String> jwtClaims, Long days, int appId, PremiumType premiumType) {
+    public static String createJWT(String id, Map<String, String> jwtClaims, Date expirationDate, int appId, PremiumType premiumType) {
         if (StringUtils.isEmpty(id)) {
             return null;
         }
@@ -29,20 +29,13 @@ public class JwtUtil {
             return Jwts.builder()
                     .setClaims(getClaims(id, jwtClaims, appId, premiumType))
                     .setIssuedAt(new Date(System.currentTimeMillis()))
-                    .setExpiration(new Date(System.currentTimeMillis() + getSessionTime(days)))
+                    .setExpiration(expirationDate)
                     .setSubject(REFRESH)
                     .signWith(getKey())
                     .compact();
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private static long getSessionTime(Long days) {
-        if (days != null && days != 0) {
-            return days * 24 * 60 * 60 * 1000L;
-        }
-        return 24 * 60 * 60 * 1000L;
     }
 
     private static Claims getClaims(String id, Map<String, String> jwtClaims, int appId, PremiumType premiumType) {
@@ -63,4 +56,5 @@ public class JwtUtil {
     public static String getJwtSecret() {
         return StringUtils.isEmpty(JWT_SECRET) ? "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N" : JWT_SECRET;
     }
+
 }

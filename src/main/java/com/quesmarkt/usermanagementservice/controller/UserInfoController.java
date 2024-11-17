@@ -21,9 +21,9 @@ public class UserInfoController extends BaseController {
 
     private final UserInfoService userInfoService;
 
-    @PostMapping("/update-premium-info")
-    public ResponseEntity<UpdatePremiumInfoResponse> updatePremiumInfo(@RequestBody PremiumInfoRequest request) {
-        return userInfoService.updatePremiumInfo(request);
+    @PostMapping("/google-play-subscribe")
+    public ResponseEntity<UpdatePremiumInfoResponse> googlePlaySubscribe(@RequestBody PremiumInfoRequest request) {
+        return userInfoService.googlePlaySubscribe(request);
     }
 
 }

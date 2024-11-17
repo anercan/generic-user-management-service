@@ -1,12 +1,14 @@
 package com.quesmarkt.usermanagementservice.service;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.services.androidpublisher.model.SubscriptionPurchase;
 import com.quesmarkt.usermanagementservice.data.entity.LoginTransaction;
 import com.quesmarkt.usermanagementservice.data.entity.User;
+import com.quesmarkt.usermanagementservice.data.enums.PremiumType;
 import com.quesmarkt.usermanagementservice.data.request.GoogleLoginRequest;
-import com.quesmarkt.usermanagementservice.data.request.SignInRequest;
 import com.quesmarkt.usermanagementservice.data.response.SignInResponse;
 import com.quesmarkt.usermanagementservice.manager.GoogleAuthManager;
+import com.quesmarkt.usermanagementservice.manager.GooglePlaySubscriptionManager;
 import com.quesmarkt.usermanagementservice.manager.LoginTransactionManager;
 import com.quesmarkt.usermanagementservice.manager.UserManager;
 import com.quesmarkt.usermanagementservice.util.JwtUtil;
@@ -22,7 +24,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.quesmarkt.usermanagementservice.util.UserUtils.createInitialUser;
+import static com.quesmarkt.usermanagementservice.util.UserUtils.*;
 
 /**
  * @author anercan
@@ -32,44 +34,19 @@ import static com.quesmarkt.usermanagementservice.util.UserUtils.createInitialUs
 @AllArgsConstructor
 public class SignInService extends BaseService {
 
-    private UserManager userManager;
-    private LoginTransactionManager loginTransactionManager;
+    private final UserManager userManager;
+    private final LoginTransactionManager loginTransactionManager;
     private HttpServletRequest request;
-    private GoogleAuthManager googleAuthManager;
+    private final GoogleAuthManager googleAuthManager;
+    private final GooglePlaySubscriptionManager googlePlaySubscriptionManager;
 
-    public ResponseEntity<SignInResponse> basicSignIn(SignInRequest request) {
-        //todo check for validation and handle bruteforce
-        boolean isLoginSucceed = false;
-        String userId = null;
-        try {
-            User user = userManager.getUserByMail(request.getEmail(), request.getAppId()).orElse(null);
-            if (user != null) {
-                userId = user.getId();
-                if (isMailAndPasswordMatch(request, user)) {
-                    isLoginSucceed = true;
-                    String jwt = JwtUtil.createJWT(user.getId(), request.getJwtClaims(), request.getExpirationDays(), request.getAppId(), UserUtils.getUserPremiumType(user.getPremiumInfo()));
-                    return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
-                } else {
-                    return ResponseEntity.ok(SignInResponse.builder().message("Wrong credentials.").status(-1).build());
-                }
-            } else {
-                return ResponseEntity.ok(SignInResponse.builder().message("Mail not found.").status(-2).build());
-            }
-        } catch (Exception e) {
-            isLoginSucceed = false;
-            logger.error("basicSignIn got exception", e);
-            return ResponseEntity.internalServerError().build();
-        } finally {
-            saveLoginTransaction(userId, isLoginSucceed);
-        }
-    }
-
-    private void saveLoginTransaction(String userId, boolean isLoginSucceed) {
+    private void saveLoginTransaction(String userId, boolean isLoginSucceed, Integer appId) {
         if (StringUtils.isNotEmpty(userId)) {
             try {
                 LoginTransaction loginTransaction = new LoginTransaction();
                 loginTransaction.setIp(getIpAddress());
                 loginTransaction.setDate(ZonedDateTime.now());
+                loginTransaction.setAppId(appId);
                 loginTransaction.setLoginSucceed(isLoginSucceed);
                 TimeZone timeZone = RequestContextUtils.getTimeZone(request);
                 loginTransaction.setZone(Objects.nonNull(timeZone) ? timeZone.getDisplayName() : null); // todo use third party for zone info
@@ -90,25 +67,46 @@ public class SignInService extends BaseService {
     }
 
     public ResponseEntity<SignInResponse> googleSignIn(GoogleLoginRequest request) {
+        boolean isLoginSucceed = true;
         GoogleIdToken.Payload payload = googleAuthManager.verifyToken(request.getToken());
         if (payload != null && BooleanUtils.isTrue(payload.getEmailVerified())) {
-            boolean isLoginSucceed = false;
             String userId = null;
             try {
                 User user = getOrElseInsert(payload, request.getAppId());
+                if (isPremiumUser(user.getPremiumInfo())) {
+                    updatePremiumInfos(user);
+                    getJWTExpireDateForPremiumUser(user).ifPresent(request::setExpirationDate);
+                }
                 userId = user.getId();
-                isLoginSucceed = true;
-                String jwt = JwtUtil.createJWT(userId, getJwtClaimsWithPayload(request, payload), request.getExpirationDays(), request.getAppId(), UserUtils.getUserPremiumType(user.getPremiumInfo()));
+                String jwt = JwtUtil.createJWT(userId, getJwtClaimsWithPayload(request, payload), request.getExpirationDate(), request.getAppId(), UserUtils.getUserPremiumType(user.getPremiumInfo()));
                 return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
             } catch (Exception e) {
                 isLoginSucceed = false;
                 logger.error("basicSignIn got exception request:{}", request, e);
                 return ResponseEntity.internalServerError().build();
             } finally {
-                saveLoginTransaction(userId, isLoginSucceed);
+                saveLoginTransaction(userId, isLoginSucceed, request.getAppId());
             }
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    private void updatePremiumInfos(User user) {
+        SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(user.getPremiumInfo().getSubscriptionId(), user.getPremiumInfo().getPurchaseToken(), user.getId());
+        if (subscriptionPurchase != null && !Objects.equals(subscriptionPurchase.getExpiryTimeMillis(), user.getPremiumInfo().getExpireDate())) {
+            user.getPremiumInfo().setExpireDate(subscriptionPurchase.getExpiryTimeMillis());
+            logger.info("Subscription renew detected expire time will update.userId:{}", user.getId());
+        }
+        if (UserUtils.hasSubscriptionExpired(user)) {
+            userManager.updateUsersPremiumInfo(user, PremiumType.NONE);
+        }
+    }
+
+    private Optional<Date> getJWTExpireDateForPremiumUser(User user) {
+        if (!hasSubscriptionExpired(user)) {
+            return Optional.of(new Date(user.getPremiumInfo().getExpireDate()));
+        }
+        return Optional.empty();
     }
 
     private Map<String, String> getJwtClaimsWithPayload(GoogleLoginRequest request, GoogleIdToken.Payload payload) {
@@ -127,11 +125,7 @@ public class SignInService extends BaseService {
             userOptional = userManager.insert(createInitialUser(payload, appId));
         }
         return userOptional.orElseThrow(() -> {
-            throw new RuntimeException("user couln't found.");
+            throw new RuntimeException("User couln't found.");
         });
-    }
-
-    private boolean isMailAndPasswordMatch(SignInRequest request, User user) {
-        return request.getPassword().equals(user.getPassword());
     }
 }

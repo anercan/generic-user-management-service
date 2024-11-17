@@ -1,7 +1,6 @@
 package com.quesmarkt.usermanagementservice.controller;
 
 import com.quesmarkt.usermanagementservice.data.request.GoogleLoginRequest;
-import com.quesmarkt.usermanagementservice.data.request.SignInRequest;
 import com.quesmarkt.usermanagementservice.data.response.SignInResponse;
 import com.quesmarkt.usermanagementservice.service.SignInService;
 import lombok.AllArgsConstructor;
@@ -21,11 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class SignInController {
 
     private final SignInService signInService;
-
-    @PostMapping("/basic")
-    public ResponseEntity<SignInResponse> signUp(@RequestBody SignInRequest request) {
-        return signInService.basicSignIn(request);
-    }
 
     @PostMapping("/google-auth")
     public ResponseEntity<SignInResponse> googleSignIn(@RequestBody GoogleLoginRequest request) {

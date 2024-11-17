@@ -2,13 +2,10 @@ package com.quesmarkt.usermanagementservice.data.entity;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConvertedEnum;
-import com.quesmarkt.usermanagementservice.data.converter.ZonedDateTypeConverter;
 import com.quesmarkt.usermanagementservice.data.enums.PremiumType;
+import com.quesmarkt.usermanagementservice.data.enums.StoreType;
 import lombok.Data;
-
-import java.time.ZonedDateTime;
 
 /**
  * @author anercan
@@ -22,7 +19,16 @@ public class PremiumInfo {
     @DynamoDBTypeConvertedEnum
     private PremiumType premiumType = PremiumType.NONE;
 
-    @DynamoDBTypeConverted(converter = ZonedDateTypeConverter.class)
     @DynamoDBAttribute(attributeName = "expireDate")
-    private ZonedDateTime expireDate;
+    private Long expireDate;
+
+    @DynamoDBAttribute(attributeName = "subscriptionId")
+    private String subscriptionId;
+
+    @DynamoDBAttribute(attributeName = "purchaseToken")
+    private String purchaseToken;
+
+    @DynamoDBAttribute(attributeName = "storeType")
+    @DynamoDBTypeConvertedEnum
+    private StoreType storeType;
 }
