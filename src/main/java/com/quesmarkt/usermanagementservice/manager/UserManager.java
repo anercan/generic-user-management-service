@@ -15,6 +15,7 @@ import com.quesmarkt.usermanagementservice.manager.exception.AppException;
 import com.quesmarkt.usermanagementservice.manager.exception.DataAccessException;
 import com.quesmarkt.usermanagementservice.manager.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -55,13 +56,25 @@ public class UserManager extends BaseManager {
         }
     }
 
-    public User setUserPremiumInfo(PremiumInfoRequest request, SubscriptionPurchase googleSubscriptionPurchaseResponse) {
-        Optional<User> userOpt = userRepository.findById(request.getUserId());
-        if (userOpt.isEmpty()) {
-            logger.warn("setUserPremiumInfo - User couldn't found! userID:{}", request.getUserId());
-            throw new UserNotFoundException("User couldn't found!");
+    public Optional<User> getUserById(String userId) {
+        if (StringUtils.isEmpty(userId)) {
+            throw new AppException("userId can't be null or empty.");
         }
         try {
+            return userRepository.findById(userId);
+        } catch (Exception e) {
+            logger.error("getUserById got exception", e);
+            throw new DataAccessException(e);
+        }
+    }
+
+    public User setUserPremiumInfo(PremiumInfoRequest request, SubscriptionPurchase googleSubscriptionPurchaseResponse) {
+        try {
+            Optional<User> userOpt = getUserById(request.getUserId());
+            if (userOpt.isEmpty()) {
+                logger.warn("setUserPremiumInfo - User couldn't found! userID:{}", request.getUserId());
+                throw new UserNotFoundException("User couldn't found!");
+            }
             User user = userOpt.get();
             PremiumInfo premiumInfo = getPremiumInfo(request, googleSubscriptionPurchaseResponse);
             user.setPremiumInfo(premiumInfo);

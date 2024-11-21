@@ -11,7 +11,7 @@ import lombok.Data;
  */
 
 @Data
-@DynamoDBTable(tableName = "subscriptionTransaction")
+@DynamoDBTable(tableName = "subscription_transactions")
 public class SubscriptionTransaction {
 
     @DynamoDBHashKey

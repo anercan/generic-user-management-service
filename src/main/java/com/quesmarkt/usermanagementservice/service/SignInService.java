@@ -122,7 +122,7 @@ public class SignInService extends BaseService {
     private User getOrElseInsert(GoogleIdToken.Payload payload, int appId) {
         Optional<User> userOptional = userManager.getUserByMail(payload.getEmail(), appId);
         if (userOptional.isEmpty() && BooleanUtils.isTrue(payload.getEmailVerified())) {
-            userOptional = userManager.insert(createInitialUser(payload, appId));
+            userOptional = userManager.insert(createInitialUserWithGoogleLogin(payload, appId));
         }
         return userOptional.orElseThrow(() -> {
             throw new RuntimeException("User couln't found.");

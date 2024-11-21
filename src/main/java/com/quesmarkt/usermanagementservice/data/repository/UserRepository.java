@@ -13,6 +13,7 @@ public interface UserRepository extends CrudRepository<User, String> {
 
     Optional<User> findByEmailAndAppId(String email,Integer appId);
 
+    @SuppressWarnings("NullableProblems")
     @Override
     Optional<User> findById(String id);
 }

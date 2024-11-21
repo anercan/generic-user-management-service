@@ -17,7 +17,7 @@ import java.util.UUID;
  */
 public class UserUtils {
 
-    public static User createInitialUser(SignUpRequest signUpRequest) {
+    public static User createInitialUserWithGoogleLogin(SignUpRequest signUpRequest) {
         User user = new User();
         user.setEmail(signUpRequest.getMail());
         boolean isPasswordSet = Objects.nonNull(signUpRequest.getPassword());
@@ -28,7 +28,7 @@ public class UserUtils {
         return user;
     }
 
-    public static User createInitialUser(GoogleIdToken.Payload payload, int appId) {
+    public static User createInitialUserWithGoogleLogin(GoogleIdToken.Payload payload, int appId) {
         User user = new User();
         user.setEmail(payload.getEmail());
         user.setState(UserState.ACTIVE);

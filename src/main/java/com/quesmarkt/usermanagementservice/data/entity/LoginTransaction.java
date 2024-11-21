@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
  */
 
 @Data
-@DynamoDBTable(tableName = "loginTransaction")
+@DynamoDBTable(tableName = "login_transactions")
 public class LoginTransaction {
 
     @DynamoDBHashKey

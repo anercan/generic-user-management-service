@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.quesmarkt.usermanagementservice.util.UserUtils.createInitialUser;
+import static com.quesmarkt.usermanagementservice.util.UserUtils.createInitialUserWithGoogleLogin;
 import static com.quesmarkt.usermanagementservice.util.UserUtils.getUserPremiumType;
 
 /**
@@ -34,7 +34,7 @@ public class SignUpService extends BaseService {
             if (BooleanUtils.isTrue(srExistByMail)) {
                 return ResponseEntity.ok().body(SignUpResponse.builder().message("User has registered already.").status(-1).build());
             }
-            Optional<User> savedUserOpt = userManager.insert(createInitialUser(signUpRequest));
+            Optional<User> savedUserOpt = userManager.insert(createInitialUserWithGoogleLogin(signUpRequest));
             if (savedUserOpt.isPresent()) {
                 User savedUser = savedUserOpt.get();
                 String jwt = JwtUtil.createJWT(savedUser.getId(), signUpRequest.getJwtClaims(), signUpRequest.getExpirationDate(), signUpRequest.getAppId(), getUserPremiumType(savedUser.getPremiumInfo()));

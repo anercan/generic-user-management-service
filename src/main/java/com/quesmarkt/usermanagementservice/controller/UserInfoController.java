@@ -2,6 +2,7 @@ package com.quesmarkt.usermanagementservice.controller;
 
 import com.quesmarkt.usermanagementservice.data.request.PremiumInfoRequest;
 import com.quesmarkt.usermanagementservice.data.response.UpdatePremiumInfoResponse;
+import com.quesmarkt.usermanagementservice.data.response.UserInfo;
 import com.quesmarkt.usermanagementservice.service.UserInfoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,11 @@ public class UserInfoController extends BaseController {
     @PostMapping("/google-play-subscribe")
     public ResponseEntity<UpdatePremiumInfoResponse> googlePlaySubscribe(@RequestBody PremiumInfoRequest request) {
         return userInfoService.googlePlaySubscribe(request);
+    }
+
+    @PostMapping("/get-user-info")
+    public ResponseEntity<UserInfo> getUserInfo(@RequestBody String userId) {
+        return userInfoService.getUserInfo(userId);
     }
 
 }
