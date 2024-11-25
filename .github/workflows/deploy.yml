@@ -42,5 +42,5 @@ jobs:
             docker stop user || true
             docker rm user || true
             cd docker-compose-files/
-            docker-compose pull user
+            docker pull ${{ secrets.DOCKER_USERNAME }}/user-management:latest
             docker-compose up -d

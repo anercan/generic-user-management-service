@@ -21,7 +21,7 @@ public class JwtUtil {
     private static final String USER_ID = "user-id";
     private static final String REFRESH = "refresh";
     public static final String PREMIUM_TYPE = "premium-type";
-    private static final String JWT_SECRET = System.getProperty("JWT_SECRET");
+    private static final String JWT_SECRET = System.getenv("JWT_SECRET");
 
     public static String createJWT(String id, Map<String, String> jwtClaims, Date expirationDate, int appId, PremiumType premiumType) {
         if (StringUtils.isEmpty(id)) {
