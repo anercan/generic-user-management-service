@@ -85,8 +85,10 @@ public class SignInService extends BaseService {
             } finally {
                 saveLoginTransaction(userId, isLoginSucceed, request.getAppId());
             }
+        } else {
+            logger.error("googleSignIn error verifyToken failed token:{}", request.getToken());
+            return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.badRequest().build();
     }
 
     private void updatePremiumInfos(User user) {
@@ -120,7 +122,9 @@ public class SignInService extends BaseService {
     private User getOrElseInsert(GoogleIdToken.Payload payload, int appId) {
         Optional<User> userOptional = userManager.getUserByMail(payload.getEmail(), appId);
         if (userOptional.isEmpty() && BooleanUtils.isTrue(payload.getEmailVerified())) {
-            userOptional = userManager.insert(UserUtils.createInitialUserWithGoogleLogin(payload, appId));
+            User initialUserWithGoogleLogin = UserUtils.createInitialUserWithGoogleLogin(payload, appId);
+            userOptional = userManager.insert(initialUserWithGoogleLogin);
+            logger.info("New user created for appId:{} mail:{}", appId, initialUserWithGoogleLogin.getEmail());
         }
         return userOptional.orElseThrow(() -> {
             throw new RuntimeException("User couln't found.");
