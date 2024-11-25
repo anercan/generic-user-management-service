@@ -1,0 +1,11 @@
+server:
+  servlet:
+    context-path: /user-management
+  port: 9091
+
+aws:
+  dynamodb:
+    accessKey: local
+    secretKey: local
+    endpoint: http://localhost:8000
+    region: us-west-2

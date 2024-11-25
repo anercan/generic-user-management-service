@@ -1,0 +1,11 @@
+server:
+  servlet:
+    context-path: ${SERVLET_CONTEXT_PATH:/user-management}
+  port: ${SERVER_PORT}
+
+aws:
+  dynamodb:
+    accessKey: ${DYNAMODB_ACCESS_KEY}
+    secretKey: ${DYNAMODB_SECRET_KEY}
+    endpoint: ${DYNAMODB_ENDPOINT}
+    region: ${DYNAMODB_REGION}

@@ -8,9 +8,9 @@
         <version>3.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.quesmarkt</groupId>
+    <groupId>com.quizmarkt</groupId>
     <artifactId>user-management-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>user-management-service</name>
     <description>User Management Service For Common Apps</description>
     <properties>
@@ -121,6 +121,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>
