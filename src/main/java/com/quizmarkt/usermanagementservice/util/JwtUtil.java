@@ -4,6 +4,7 @@ import com.quizmarkt.usermanagementservice.data.enums.PremiumType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 
+@Slf4j
 public class JwtUtil {
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
     private static final String USERNAME = "username";
@@ -34,6 +36,7 @@ public class JwtUtil {
                     .signWith(getKey())
                     .compact();
         } catch (Exception e) {
+            log.error("createJWT got exception userID:{}", id, e);
             return null;
         }
     }
