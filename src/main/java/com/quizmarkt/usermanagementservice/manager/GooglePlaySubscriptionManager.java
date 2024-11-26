@@ -6,18 +6,24 @@ import com.google.api.services.androidpublisher.AndroidPublisherScopes;
 import com.google.api.services.androidpublisher.model.SubscriptionPurchase;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.quizmarkt.usermanagementservice.data.entity.AppConfig;
+import com.quizmarkt.usermanagementservice.data.repository.AppConfigRepository;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class GooglePlaySubscriptionManager {
 
     private static final String PACKAGE_NAME_LIFEINTHEUK = "com.quizmarkt.lifeintheuk";
+    private final AppConfigRepository appConfigRepository;
 
     private AndroidPublisher initPublisher() {
         InputStream serviceAccountStream = getServiceConfigFile();
@@ -44,12 +50,10 @@ public class GooglePlaySubscriptionManager {
     }
 
     private InputStream getServiceConfigFile() {
-        try (InputStream inputStream = Files.newInputStream(Paths.get("/app/config/googleAuth-" + PACKAGE_NAME_LIFEINTHEUK + ".json"))) {
-            return inputStream;
-        } catch (Exception e) {
-            log.error("Failed to read googleAuth.json for " + PACKAGE_NAME_LIFEINTHEUK, e);
-            return null;
-        }
+        Optional<AppConfig> byPackageName = appConfigRepository.findByPackageName(PACKAGE_NAME_LIFEINTHEUK);
+        return byPackageName
+                .map(appConfig -> new ByteArrayInputStream(appConfig.getGooglePlayConfigJson().getBytes(StandardCharsets.UTF_8)))
+                .orElse(null);
     }
 
     public SubscriptionPurchase getSubscriptionData(String subscriptionId, String purchaseToken, String userId) {

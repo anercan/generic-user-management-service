@@ -9,21 +9,33 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.quizmarkt.usermanagementservice.data.entity.AppConfig;
+import com.quizmarkt.usermanagementservice.data.repository.AppConfigRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Optional;
 
 @Component
+@AllArgsConstructor
+@Slf4j
 public class GoogleAuthManager {
 
-    private static final String CLIENT_ID = "1017625843116-tj2gps7d9gsfd206psv7o76tqprekge2.apps.googleusercontent.com";
+    private static final String PACKAGE_NAME_LIFEINTHEUK = "com.quizmarkt.lifeintheuk";
+    private final AppConfigRepository appConfigRepository;
 
     public Payload verifyToken(String idTokenString){
         try {
+            String clientIdURL = getClientIdURL();
+            if (clientIdURL == null) {
+                log.error("verifyToken clientIdURL is null!");
+            }
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                    .setAudience(Collections.singletonList(CLIENT_ID))
+                    .setAudience(Collections.singletonList(clientIdURL))
                     .build();
 
             GoogleIdToken idToken = verifier.verify(idTokenString);
@@ -44,5 +56,10 @@ public class GoogleAuthManager {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private String getClientIdURL() {
+        Optional<AppConfig> byPackageName = appConfigRepository.findByPackageName(PACKAGE_NAME_LIFEINTHEUK);
+        return byPackageName.map(AppConfig::getGoogleAuthClientUrl).orElse(null);
     }
 }
