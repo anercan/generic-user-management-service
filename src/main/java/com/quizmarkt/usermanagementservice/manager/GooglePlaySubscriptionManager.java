@@ -10,18 +10,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Component
 @Slf4j
 public class GooglePlaySubscriptionManager {
 
-    private static final String PACKAGE_NAME = "com.quizmarkt.lifeintheuk";
+    private static final String PACKAGE_NAME_LIFEINTHEUK = "com.quizmarkt.lifeintheuk";
 
     private AndroidPublisher initPublisher() {
-        InputStream serviceAccountStream = getClass().getClassLoader().getResourceAsStream("googleAuth.json");
+        InputStream serviceAccountStream = getServiceConfigFile();
         try (serviceAccountStream) {
             if (serviceAccountStream == null) {
-                log.error("googleAuth.json couldn't found");
+                log.error("googleAuth json couldn't found for {}", PACKAGE_NAME_LIFEINTHEUK);
                 return null;
             }
             GoogleCredentials credentials = GoogleCredentials
@@ -41,6 +43,15 @@ public class GooglePlaySubscriptionManager {
         }
     }
 
+    private InputStream getServiceConfigFile() {
+        try (InputStream inputStream = Files.newInputStream(Paths.get("/app/config/googleAuth-" + PACKAGE_NAME_LIFEINTHEUK + ".json"))) {
+            return inputStream;
+        } catch (Exception e) {
+            log.error("Failed to read googleAuth.json for " + PACKAGE_NAME_LIFEINTHEUK, e);
+            return null;
+        }
+    }
+
     public SubscriptionPurchase getSubscriptionData(String subscriptionId, String purchaseToken, String userId) {
         try {
             AndroidPublisher publisher = initPublisher();
@@ -51,7 +62,7 @@ public class GooglePlaySubscriptionManager {
             AndroidPublisher.Purchases.Subscriptions.Get request = publisher
                     .purchases()
                     .subscriptions()
-                    .get(PACKAGE_NAME, subscriptionId, purchaseToken);
+                    .get(PACKAGE_NAME_LIFEINTHEUK, subscriptionId, purchaseToken);
 
             return request.execute();
         } catch (Exception e) {
