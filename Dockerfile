@@ -2,7 +2,7 @@
 FROM maven:3.8.1-openjdk-17-slim AS build
 COPY src /app/src
 COPY pom.xml /app
-COPY googleAuth.json app/config/googleAuth-com.quizmarkt.lifeintheuk.json
+COPY googleAuth-com.quizmarkt.lifeintheuk.json app/config/googleAuth-com.quizmarkt.lifeintheuk.json
 
 RUN mvn -f /app/pom.xml clean package
 
