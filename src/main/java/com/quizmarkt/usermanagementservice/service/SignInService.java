@@ -111,10 +111,7 @@ public class SignInService extends BaseService {
 
     private Map<String, String> getJwtClaimsWithPayload(GoogleLoginRequest request, GoogleIdToken.Payload payload) {
         if (request.getJwtClaims() == null) {
-            request.setJwtClaims(new HashMap<>());
-            request.getJwtClaims().put("avatar", (String) payload.get("picture"));
-        } else {
-            request.getJwtClaims().put("avatar", (String) payload.get("picture"));
+            return new HashMap<>();
         }
         return request.getJwtClaims();
     }
