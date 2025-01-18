@@ -43,4 +43,5 @@ jobs:
             docker rm user || true
             cd docker-compose-files/
             docker pull ${{ secrets.DOCKER_USERNAME }}/user-management:latest
+            docker image prune -f
             docker-compose up -d
