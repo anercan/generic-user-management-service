@@ -6,6 +6,7 @@ import com.quizmarkt.usermanagementservice.data.entity.LoginTransaction;
 import com.quizmarkt.usermanagementservice.data.entity.User;
 import com.quizmarkt.usermanagementservice.data.enums.PremiumType;
 import com.quizmarkt.usermanagementservice.data.request.GoogleLoginRequest;
+import com.quizmarkt.usermanagementservice.data.request.SignInRequest;
 import com.quizmarkt.usermanagementservice.data.response.SignInResponse;
 import com.quizmarkt.usermanagementservice.manager.GoogleAuthManager;
 import com.quizmarkt.usermanagementservice.manager.GooglePlaySubscriptionManager;
@@ -21,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -80,7 +83,7 @@ public class SignInService extends BaseService {
                 return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
             } catch (Exception e) {
                 isLoginSucceed = false;
-                logger.error("basicSignIn got exception request:{}", request, e);
+                logger.error("googleSignIn got exception request:{}", request, e);
                 return ResponseEntity.internalServerError().build();
             } finally {
                 saveLoginTransaction(userId, isLoginSucceed, request.getAppId());
@@ -124,7 +127,22 @@ public class SignInService extends BaseService {
             logger.info("New user created for appId:{} mail:{}", appId, initialUserWithGoogleLogin.getEmail());
         }
         return userOptional.orElseThrow(() -> {
-            throw new RuntimeException("User couln't found.");
+            throw new RuntimeException("User couldn't found.");
         });
+    }
+
+    public ResponseEntity<SignInResponse> adminSignIn(SignInRequest request) {
+        if (UserUtils.verifyAdminLogin(request)) {
+            try {
+                String jwt = JwtUtil.createJWT("null", request.getJwtClaims(), Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()),1, PremiumType.LEVEL1);
+                return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
+            } catch (Exception e) {
+                logger.error("adminSignIn got exception request:{}", request, e);
+                return ResponseEntity.internalServerError().build();
+            }
+        } else {
+            logger.error("adminSignIn error invalid credentials user:{}", request.getEmail());
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

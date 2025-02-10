@@ -1,6 +1,7 @@
 package com.quizmarkt.usermanagementservice.controller;
 
 import com.quizmarkt.usermanagementservice.data.request.GoogleLoginRequest;
+import com.quizmarkt.usermanagementservice.data.request.SignInRequest;
 import com.quizmarkt.usermanagementservice.data.response.SignInResponse;
 import com.quizmarkt.usermanagementservice.service.SignInService;
 import lombok.AllArgsConstructor;
@@ -24,5 +25,10 @@ public class SignInController {
     @PostMapping("/google-auth")
     public ResponseEntity<SignInResponse> googleSignIn(@RequestBody GoogleLoginRequest request) {
         return signInService.googleSignIn(request);
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<SignInResponse> googleSignIn(@RequestBody SignInRequest request) {
+        return signInService.adminSignIn(request);
     }
 }

@@ -5,6 +5,7 @@ import com.quizmarkt.usermanagementservice.data.entity.PremiumInfo;
 import com.quizmarkt.usermanagementservice.data.entity.User;
 import com.quizmarkt.usermanagementservice.data.enums.PremiumType;
 import com.quizmarkt.usermanagementservice.data.enums.UserState;
+import com.quizmarkt.usermanagementservice.data.request.SignInRequest;
 import com.quizmarkt.usermanagementservice.data.request.SignUpRequest;
 import org.apache.commons.lang3.StringUtils;
 
@@ -55,5 +56,10 @@ public class UserUtils {
 
     public static boolean hasSubscriptionExpired(User user) {
         return user.getPremiumInfo() != null && user.getPremiumInfo().getExpireDate() < System.currentTimeMillis();
+    }
+
+    public static boolean verifyAdminLogin(SignInRequest request) {
+        String adminPw = System.getenv("ADMIN_PW");
+        return request.getPassword().equals(adminPw) && "admin".equals(request.getEmail());
     }
 }
