@@ -40,10 +40,11 @@ public class UserManager extends BaseManager {
         }
     }
 
-    public Optional<User> insert(User user) {
+    public Optional<User> save(User user) {
         try {
             return Optional.of(userRepository.save(user));
         } catch (Exception e) {
+            logger.error("save got exception", e);
             throw new DataAccessException(e);
         }
     }

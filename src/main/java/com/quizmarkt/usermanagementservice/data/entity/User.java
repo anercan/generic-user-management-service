@@ -50,4 +50,7 @@ public class User {
 
     @DynamoDBAttribute(attributeName = "premiumInfo")
     private PremiumInfo premiumInfo;
+
+    @DynamoDBAttribute(attributeName = "deviceInfo")
+    private DeviceInfo deviceInfo;
 }

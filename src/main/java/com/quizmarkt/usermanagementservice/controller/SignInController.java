@@ -28,7 +28,7 @@ public class SignInController {
     }
 
     @PostMapping("/admin")
-    public ResponseEntity<SignInResponse> googleSignIn(@RequestBody SignInRequest request) {
+    public ResponseEntity<SignInResponse> adminSignIn(@RequestBody SignInRequest request) {
         return signInService.adminSignIn(request);
     }
 }

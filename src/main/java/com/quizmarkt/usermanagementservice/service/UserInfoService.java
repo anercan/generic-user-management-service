@@ -34,7 +34,7 @@ public class UserInfoService {
 
     public ResponseEntity<UpdatePremiumInfoResponse> googlePlaySubscribe(PremiumInfoRequest request) {
         GoogleSubscriptionRequest googleSubscriptionRequest = request.getGoogleSubscriptionRequest();
-        SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(googleSubscriptionRequest.getProductId(), googleSubscriptionRequest.getTransactionReceipt().getPurchaseToken(), request.getUserId());
+        SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(googleSubscriptionRequest.getProductId(), googleSubscriptionRequest.getTransactionReceipt().getPurchaseToken(), request.getUserId(), request.getAppId());
         if (googlePlaySubscriptionManager.isSubscriptionValid(subscriptionPurchase)) {
             UpdatePremiumInfoResponse response = new UpdatePremiumInfoResponse();
             try {
@@ -55,7 +55,7 @@ public class UserInfoService {
             }
             return ResponseEntity.ok(response);
         } else {
-            log.error("isSubscriptionValid got error userId:{} subscriptionPurchase:{}",request.getUserId(),subscriptionPurchase);
+            log.error("isSubscriptionValid got error userId:{} subscriptionPurchase:{}", request.getUserId(), subscriptionPurchase);
             return ResponseEntity.internalServerError().build();
         }
     }

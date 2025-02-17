@@ -73,7 +73,7 @@ public class SignInService extends BaseService {
         if (payload != null && BooleanUtils.isTrue(payload.getEmailVerified())) {
             String userId = null;
             try {
-                User user = getOrElseInsert(payload, request.getAppId());
+                User user = getOrElseInsert(request.getDeviceInfo(),payload, request.getAppId());
                 if (UserUtils.isPremiumUser(user.getPremiumInfo())) {
                     updatePremiumInfos(user);
                     getJWTExpireDateForPremiumUser(user).ifPresent(request::setExpirationDate);
@@ -95,7 +95,7 @@ public class SignInService extends BaseService {
     }
 
     private void updatePremiumInfos(User user) {
-        SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(user.getPremiumInfo().getSubscriptionId(), user.getPremiumInfo().getPurchaseToken(), user.getId());
+        SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(user.getPremiumInfo().getSubscriptionId(), user.getPremiumInfo().getPurchaseToken(), user.getId(), user.getAppId());
         if (subscriptionPurchase != null && !Objects.equals(subscriptionPurchase.getExpiryTimeMillis(), user.getPremiumInfo().getExpireDate())) {
             user.getPremiumInfo().setExpireDate(subscriptionPurchase.getExpiryTimeMillis());
             logger.info("Subscription renew detected expire time will update.userId:{}", user.getId());
@@ -119,16 +119,33 @@ public class SignInService extends BaseService {
         return request.getJwtClaims();
     }
 
-    private User getOrElseInsert(GoogleIdToken.Payload payload, int appId) {
+    private User getOrElseInsert(SignInRequest.DeviceInfo deviceInfoRequest, GoogleIdToken.Payload payload, int appId) {
         Optional<User> userOptional = userManager.getUserByMail(payload.getEmail(), appId);
         if (userOptional.isEmpty() && BooleanUtils.isTrue(payload.getEmailVerified())) {
-            User initialUserWithGoogleLogin = UserUtils.createInitialUserWithGoogleLogin(payload, appId);
-            userOptional = userManager.insert(initialUserWithGoogleLogin);
+            User initialUserWithGoogleLogin = UserUtils.createInitialUserWithGoogleLogin(deviceInfoRequest, payload, appId);
+            userOptional = userManager.save(initialUserWithGoogleLogin);
             logger.info("New user created for appId:{} mail:{}", appId, initialUserWithGoogleLogin.getEmail());
         }
-        return userOptional.orElseThrow(() -> {
-            throw new RuntimeException("User couldn't found.");
-        });
+        User user = userOptional.orElseThrow(() -> {throw new RuntimeException("User couldn't found.");});
+        checkAndUpdateDeviceInfo(deviceInfoRequest, user);
+        return user;
+    }
+
+    private void checkAndUpdateDeviceInfo(SignInRequest.DeviceInfo deviceInfoRequest, User user) {
+        try {
+            boolean isDeviceInfoExistInRequest = deviceInfoRequest != null && deviceInfoRequest.getToken() != null;
+            if (isDeviceInfoExistInRequest) {
+                boolean updateNeedForToken = user.getDeviceInfo() == null || !user.getDeviceInfo().getFcmToken().equals(deviceInfoRequest.getToken());
+                if (updateNeedForToken) {
+                    user.setDeviceInfo(UserUtils.getDeviceInfo(deviceInfoRequest));
+                    logger.info("Device info updated for user:{}", user.getId());
+                    userManager.save(user);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("checkAndUpdateDeviceInfo got exception {} user:{} deviceInfo{} req:{}", e, user.getId(), user.getDeviceInfo(), deviceInfoRequest);
+        }
+
     }
 
     public ResponseEntity<SignInResponse> adminSignIn(SignInRequest request) {

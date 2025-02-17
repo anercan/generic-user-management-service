@@ -6,6 +6,10 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import lombok.Data;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author anercan
  */
@@ -32,5 +36,9 @@ public class AppConfig {
 
     @DynamoDBAttribute(attributeName = "googleAuthClientUrl")
     private String googleAuthClientUrl;
+
+    public InputStream getServiceConfigFile() {
+        return new ByteArrayInputStream(googlePlayConfigJson.getBytes(StandardCharsets.UTF_8));
+    }
 
 }
