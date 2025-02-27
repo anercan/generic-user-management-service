@@ -50,6 +50,7 @@ public class UserInfoService {
                         )
                 );
             } catch (Exception e) {
+                log.error("googlePlaySubscribe got exception", e);
                 response.setSucceed(false);
                 response.setMessage(e.getMessage());
             }

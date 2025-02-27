@@ -133,9 +133,9 @@ public class SignInService extends BaseService {
 
     private void checkAndUpdateDeviceInfo(SignInRequest.DeviceInfo deviceInfoRequest, User user) {
         try {
-            boolean isDeviceInfoExistInRequest = deviceInfoRequest != null && deviceInfoRequest.getToken() != null;
+            boolean isDeviceInfoExistInRequest = deviceInfoRequest != null && StringUtils.isNotEmpty(deviceInfoRequest.getToken());
             if (isDeviceInfoExistInRequest) {
-                boolean updateNeedForToken = user.getDeviceInfo() == null || !user.getDeviceInfo().getFcmToken().equals(deviceInfoRequest.getToken());
+                boolean updateNeedForToken = user.getDeviceInfo() == null || !deviceInfoRequest.getToken().equals(user.getDeviceInfo().getFcmToken());
                 if (updateNeedForToken) {
                     user.setDeviceInfo(UserUtils.getDeviceInfo(deviceInfoRequest));
                     logger.info("Device info updated for user:{}", user.getId());

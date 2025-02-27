@@ -20,8 +20,8 @@ public class GooglePlaySubscriptionManager {
 
     private final AppConfigManager appConfigManager;
 
-    private AndroidPublisher initPublisher() {
-        AppConfig app = appConfigManager.getInMemoryAppWithId(1);
+    private AndroidPublisher initPublisher(int appId) {
+        AppConfig app = appConfigManager.getInMemoryAppWithId(appId);
         InputStream serviceAccountStream = app.getServiceConfigFile();
         try (serviceAccountStream) {
             if (serviceAccountStream == null) {
@@ -48,8 +48,9 @@ public class GooglePlaySubscriptionManager {
     public SubscriptionPurchase getSubscriptionData(String subscriptionId, String purchaseToken, String userId, int appId) {
         AppConfig app = appConfigManager.getInMemoryAppWithId(appId);
         try {
-            AndroidPublisher publisher = initPublisher();
+            AndroidPublisher publisher = initPublisher(appId);
             if (publisher == null) {
+                log.error("AndroidPublisher could not set appId:{} userId:{}", appId, userId);
                 return null;
             }
 
@@ -67,8 +68,6 @@ public class GooglePlaySubscriptionManager {
     }
 
     public boolean isSubscriptionValid(SubscriptionPurchase subscription) {
-        return subscription != null
-                && subscription.getExpiryTimeMillis() > System.currentTimeMillis()
-                && subscription.getPaymentState() == 1;
+        return subscription != null && subscription.getExpiryTimeMillis() > System.currentTimeMillis();
     }
 }
