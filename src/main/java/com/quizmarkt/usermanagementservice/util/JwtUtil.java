@@ -57,7 +57,7 @@ public class JwtUtil {
     }
 
     public static String getJwtSecret() {
-        return StringUtils.isEmpty(JWT_SECRET) ? "local_key" : JWT_SECRET;
+        return JWT_SECRET;
     }
 
 }

@@ -16,6 +16,7 @@ import com.quizmarkt.usermanagementservice.util.JwtUtil;
 import com.quizmarkt.usermanagementservice.util.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,8 @@ import java.util.*;
 
 @Service
 @AllArgsConstructor
-public class SignInService extends BaseService {
+@Slf4j
+public class SignInService {
 
     private final UserManager userManager;
     private final LoginTransactionManager loginTransactionManager;
@@ -54,7 +56,7 @@ public class SignInService extends BaseService {
                 loginTransaction.setUserId(userId);
                 loginTransactionManager.saveNewLoginTransaction(loginTransaction);
             } catch (Exception e) {
-                logger.error("saveLoginTransaction got exception ", e);
+                log.error("saveLoginTransaction got exception ", e);
             }
         }
     }
@@ -83,13 +85,13 @@ public class SignInService extends BaseService {
                 return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
             } catch (Exception e) {
                 isLoginSucceed = false;
-                logger.error("googleSignIn got exception request:{}", request, e);
+                log.error("googleSignIn got exception request:{}", request.getEmail(), e);
                 return ResponseEntity.internalServerError().build();
             } finally {
                 saveLoginTransaction(userId, isLoginSucceed, request.getAppId());
             }
         } else {
-            logger.error("googleSignIn error verifyToken failed token:{}", request.getToken());
+            log.error("googleSignIn error verifyToken failed token:{}", request.getToken());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -98,7 +100,7 @@ public class SignInService extends BaseService {
         SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(user.getPremiumInfo().getSubscriptionId(), user.getPremiumInfo().getPurchaseToken(), user.getId(), user.getAppId());
         if (subscriptionPurchase != null && !Objects.equals(subscriptionPurchase.getExpiryTimeMillis(), user.getPremiumInfo().getExpireDate())) {
             user.getPremiumInfo().setExpireDate(subscriptionPurchase.getExpiryTimeMillis());
-            logger.info("Subscription renew detected expire time will update.userId:{}", user.getId());
+            log.info("Subscription renew detected expire time will update.userId:{}", user.getId());
         }
         if (UserUtils.hasSubscriptionExpired(user)) {
             userManager.updateUsersPremiumInfo(user, PremiumType.NONE);
@@ -124,7 +126,7 @@ public class SignInService extends BaseService {
         if (userOptional.isEmpty() && BooleanUtils.isTrue(payload.getEmailVerified())) {
             User initialUserWithGoogleLogin = UserUtils.createInitialUserWithGoogleLogin(deviceInfoRequest, payload, appId);
             userOptional = userManager.save(initialUserWithGoogleLogin);
-            logger.info("New user created for appId:{} mail:{}", appId, initialUserWithGoogleLogin.getEmail());
+            log.info("New user created for appId:{} mail:{}", appId, initialUserWithGoogleLogin.getEmail());
         }
         User user = userOptional.orElseThrow(() -> {throw new RuntimeException("User couldn't found.");});
         checkAndUpdateDeviceInfo(deviceInfoRequest, user);
@@ -138,12 +140,12 @@ public class SignInService extends BaseService {
                 boolean updateNeedForToken = user.getDeviceInfo() == null || !deviceInfoRequest.getToken().equals(user.getDeviceInfo().getFcmToken());
                 if (updateNeedForToken) {
                     user.setDeviceInfo(UserUtils.getDeviceInfo(deviceInfoRequest));
-                    logger.info("Device info updated for user:{}", user.getId());
+                    log.info("Device info updated for user:{}", user.getId());
                     userManager.save(user);
                 }
             }
         } catch (Exception e) {
-            logger.error("checkAndUpdateDeviceInfo got exception {} user:{} deviceInfo{} req:{}", e, user.getId(), user.getDeviceInfo(), deviceInfoRequest);
+            log.error("checkAndUpdateDeviceInfo got exception {} user:{} deviceInfo{} req:{}", e, user.getId(), user.getDeviceInfo(), deviceInfoRequest);
         }
 
     }
@@ -154,11 +156,11 @@ public class SignInService extends BaseService {
                 String jwt = JwtUtil.createJWT("null", request.getJwtClaims(), Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()),1, PremiumType.LEVEL1);
                 return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
             } catch (Exception e) {
-                logger.error("adminSignIn got exception request:{}", request, e);
+                log.error("adminSignIn got exception request:{}", request, e);
                 return ResponseEntity.internalServerError().build();
             }
         } else {
-            logger.error("adminSignIn error invalid credentials user:{}", request.getEmail());
+            log.error("adminSignIn error invalid credentials user:{}", request.getEmail());
             return ResponseEntity.badRequest().build();
         }
     }
