@@ -5,6 +5,7 @@ import com.google.api.services.androidpublisher.model.SubscriptionPurchase;
 import com.quizmarkt.usermanagementservice.data.entity.LoginTransaction;
 import com.quizmarkt.usermanagementservice.data.entity.User;
 import com.quizmarkt.usermanagementservice.data.enums.PremiumType;
+import com.quizmarkt.usermanagementservice.data.enums.StoreType;
 import com.quizmarkt.usermanagementservice.data.request.GoogleLoginRequest;
 import com.quizmarkt.usermanagementservice.data.request.SignInRequest;
 import com.quizmarkt.usermanagementservice.data.response.SignInResponse;
@@ -97,10 +98,12 @@ public class SignInService {
     }
 
     private void updatePremiumInfos(User user) {
-        SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(user.getPremiumInfo().getSubscriptionId(), user.getPremiumInfo().getPurchaseToken(), user.getId(), user.getAppId());
-        if (subscriptionPurchase != null && !Objects.equals(subscriptionPurchase.getExpiryTimeMillis(), user.getPremiumInfo().getExpireDate())) {
-            user.getPremiumInfo().setExpireDate(subscriptionPurchase.getExpiryTimeMillis());
-            log.info("Subscription renew detected expire time will update.userId:{}", user.getId());
+        if (user.getPremiumInfo() != null && StoreType.GOOGLE_PLAY.equals(user.getPremiumInfo().getStoreType())) {
+            SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(user.getPremiumInfo().getSubscriptionId(), user.getPremiumInfo().getPurchaseToken(), user.getId(), user.getAppId());
+            if (subscriptionPurchase != null && !Objects.equals(subscriptionPurchase.getExpiryTimeMillis(), user.getPremiumInfo().getExpireDate())) {
+                user.getPremiumInfo().setExpireDate(subscriptionPurchase.getExpiryTimeMillis());
+                log.info("Subscription renew detected expire time will update.userId:{}", user.getId());
+            }
         }
         if (UserUtils.hasSubscriptionExpired(user)) {
             userManager.updateUsersPremiumInfo(user, PremiumType.NONE);
