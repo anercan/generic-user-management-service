@@ -76,7 +76,7 @@ public class SignInService {
         if (payload != null && BooleanUtils.isTrue(payload.getEmailVerified())) {
             String userId = null;
             try {
-                User user = getOrElseInsert(request.getDeviceInfo(),payload, request.getAppId());
+                User user = getOrElseInsert(request.getDeviceInfo(), payload, request.getAppId());
                 if (UserUtils.isPremiumUser(user.getPremiumInfo())) {
                     updatePremiumInfos(user);
                     getJWTExpireDateForPremiumUser(user).ifPresent(request::setExpirationDate);
@@ -98,16 +98,36 @@ public class SignInService {
     }
 
     private void updatePremiumInfos(User user) {
-        if (user.getPremiumInfo() != null && StoreType.GOOGLE_PLAY.equals(user.getPremiumInfo().getStoreType())) {
+        if (isGooglePlaySubscription(user)) {
             SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(user.getPremiumInfo().getSubscriptionId(), user.getPremiumInfo().getPurchaseToken(), user.getId(), user.getAppId());
-            if (subscriptionPurchase != null && !Objects.equals(subscriptionPurchase.getExpiryTimeMillis(), user.getPremiumInfo().getExpireDate())) {
+            if (subscriptionPurchase != null) {
+                if (!Objects.equals(subscriptionPurchase.getExpiryTimeMillis(), user.getPremiumInfo().getExpireDate())) {
+                    user.getPremiumInfo().setExpireDate(subscriptionPurchase.getExpiryTimeMillis());
+                    log.info("Subscription renew detected expire time will update.userId:{}", user.getId());
+                }
+            } else {
+                log.warn("Subscription info error.userId:{}", user.getId());
+                userManager.updateUsersPremiumInfo(user, PremiumType.NONE);
+            }
+        } else if (isOldStoreSubscriptionNowCustomSubscription(user)) {
+            SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(user.getPremiumInfo().getSubscriptionId(), user.getPremiumInfo().getPurchaseToken(), user.getId(), user.getAppId());
+            if (subscriptionPurchase != null && subscriptionPurchase.getExpiryTimeMillis() > user.getPremiumInfo().getExpireDate()) {
                 user.getPremiumInfo().setExpireDate(subscriptionPurchase.getExpiryTimeMillis());
-                log.info("Subscription renew detected expire time will update.userId:{}", user.getId());
+                user.getPremiumInfo().setStoreType(StoreType.GOOGLE_PLAY);
+                log.info("Custom subscription has returned to GooglePlay subscription.userId:{}", user.getId());
             }
         }
         if (UserUtils.hasSubscriptionExpired(user)) {
             userManager.updateUsersPremiumInfo(user, PremiumType.NONE);
         }
+    }
+
+    private boolean isGooglePlaySubscription(User user) {
+        return user.getPremiumInfo() != null && StoreType.GOOGLE_PLAY.equals(user.getPremiumInfo().getStoreType());
+    }
+
+    private boolean isOldStoreSubscriptionNowCustomSubscription(User user) {
+        return user.getPremiumInfo() != null && StoreType.CUSTOM.equals(user.getPremiumInfo().getStoreType()) && StringUtils.isNotEmpty(user.getPremiumInfo().getPurchaseToken());
     }
 
     private Optional<Date> getJWTExpireDateForPremiumUser(User user) {
@@ -131,7 +151,9 @@ public class SignInService {
             userOptional = userManager.save(initialUserWithGoogleLogin);
             log.info("New user created for appId:{} mail:{}", appId, initialUserWithGoogleLogin.getEmail());
         }
-        User user = userOptional.orElseThrow(() -> {throw new RuntimeException("User couldn't found.");});
+        User user = userOptional.orElseThrow(() -> {
+            throw new RuntimeException("User couldn't found.");
+        });
         checkAndUpdateDeviceInfo(deviceInfoRequest, user);
         return user;
     }
@@ -156,7 +178,7 @@ public class SignInService {
     public ResponseEntity<SignInResponse> adminSignIn(SignInRequest request) {
         if (UserUtils.verifyAdminLogin(request)) {
             try {
-                String jwt = JwtUtil.createJWT("null", request.getJwtClaims(), Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()),1, PremiumType.LEVEL1);
+                String jwt = JwtUtil.createJWT("null", request.getJwtClaims(), Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()), 1, PremiumType.LEVEL1);
                 return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
             } catch (Exception e) {
                 log.error("adminSignIn got exception request:{}", request, e);
