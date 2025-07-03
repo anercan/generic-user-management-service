@@ -79,7 +79,7 @@ public class SignInService {
                 User user = getOrElseInsert(request.getDeviceInfo(), payload, request.getAppId());
                 if (UserUtils.isPremiumUser(user.getPremiumInfo())) {
                     updatePremiumInfos(user);
-                    request.setExpirationDate(new Date(user.getPremiumInfo().getExpireDate()));
+                    getJWTExpireDateForPremiumUser(user).ifPresent(request::setExpirationDate);
                 }
                 userId = user.getId();
                 String jwt = JwtUtil.createJWT(userId, getJwtClaimsWithPayload(request, payload), request.getExpirationDate(), request.getAppId(), UserUtils.getUserPremiumType(user.getPremiumInfo()));
@@ -104,6 +104,7 @@ public class SignInService {
                 if (!Objects.equals(subscriptionPurchase.getExpiryTimeMillis(), user.getPremiumInfo().getExpireDate()) && subscriptionPurchase.getExpiryTimeMillis() > user.getPremiumInfo().getExpireDate()) {
                     log.info("Subscription renew detected expire time will update.newExpire:{} oldExpire:{} userId:{}", subscriptionPurchase.getExpiryTimeMillis(), user.getPremiumInfo().getExpireDate(), user.getId());
                     user.getPremiumInfo().setExpireDate(subscriptionPurchase.getExpiryTimeMillis());
+                    userManager.updateUsersPremiumInfo(user, user.getPremiumInfo().getPremiumType());
                 }
             } else {
                 log.warn("Subscription info error.userId:{}", user.getId());
@@ -124,6 +125,7 @@ public class SignInService {
             user.getPremiumInfo().setExpireDate(subscriptionPurchase.getExpiryTimeMillis());
             user.getPremiumInfo().setStoreType(StoreType.GOOGLE_PLAY);
             log.info("Custom subscription has returned to GooglePlay subscription.userId:{}", user.getId());
+            userManager.updateUsersPremiumInfo(user, user.getPremiumInfo().getPremiumType());
         } else {
             log.error("Custom subscription error.userId:{}", user.getId());
         }
@@ -135,6 +137,13 @@ public class SignInService {
 
     private boolean isOldStoreSubscriptionNowCustomSubscription(User user) {
         return user.getPremiumInfo() != null && StoreType.CUSTOM.equals(user.getPremiumInfo().getStoreType()) && StringUtils.isNotEmpty(user.getPremiumInfo().getPurchaseToken());
+    }
+
+    private Optional<Date> getJWTExpireDateForPremiumUser(User user) {
+        if (!UserUtils.hasSubscriptionExpired(user)) {
+            return Optional.of(new Date(user.getPremiumInfo().getExpireDate()));
+        }
+        return Optional.empty();
     }
 
     private Map<String, String> getJwtClaimsWithPayload(GoogleLoginRequest request, GoogleIdToken.Payload payload) {
