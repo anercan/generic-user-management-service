@@ -59,12 +59,55 @@ public class GooglePlaySubscriptionManager {
                     .subscriptions()
                     .get(app.getPackageName(), subscriptionId, purchaseToken);
 
-            return request.execute();
+            SubscriptionPurchase execute = request.execute();
+            log.info("getSubscriptionData called for userId:{} response:{}", userId, subscriptionPurchaseToString(execute));
+            return execute;
         } catch (Exception e) {
             log.error("verifySubscription got exception userId:{}", userId, e);
             return null;
         }
+    }
 
+    private String subscriptionPurchaseToString(SubscriptionPurchase sp) {
+        if (sp == null) {
+            return "SubscriptionPurchase is null";
+        }
+        try {
+            return "SubscriptionPurchase{" +
+                    "acknowledgementState=" + sp.getAcknowledgementState() +
+                    ", autoRenewing=" + sp.getAutoRenewing() +
+                    ", autoResumeTimeMillis=" + sp.getAutoResumeTimeMillis() +
+                    ", cancelReason=" + sp.getCancelReason() +
+                    ", cancelSurveyResult=" + sp.getCancelSurveyResult() +
+                    ", countryCode='" + sp.getCountryCode() + '\'' +
+                    ", developerPayload='" + sp.getDeveloperPayload() + '\'' +
+                    ", emailAddress='" + sp.getEmailAddress() + '\'' +
+                    ", expiryTimeMillis=" + sp.getExpiryTimeMillis() +
+                    ", externalAccountId='" + sp.getExternalAccountId() + '\'' +
+                    ", familyName='" + sp.getFamilyName() + '\'' +
+                    ", givenName='" + sp.getGivenName() + '\'' +
+                    ", introductoryPriceInfo=" + sp.getIntroductoryPriceInfo() +
+                    ", kind='" + sp.getKind() + '\'' +
+                    ", linkedPurchaseToken='" + sp.getLinkedPurchaseToken() + '\'' +
+                    ", obfuscatedExternalAccountId='" + sp.getObfuscatedExternalAccountId() + '\'' +
+                    ", obfuscatedExternalProfileId='" + sp.getObfuscatedExternalProfileId() + '\'' +
+                    ", orderId='" + sp.getOrderId() + '\'' +
+                    ", paymentState=" + sp.getPaymentState() +
+                    ", priceAmountMicros=" + sp.getPriceAmountMicros() +
+                    ", priceChange=" + sp.getPriceChange() +
+                    ", priceCurrencyCode='" + sp.getPriceCurrencyCode() + '\'' +
+                    ", profileId='" + sp.getProfileId() + '\'' +
+                    ", profileName='" + sp.getProfileName() + '\'' +
+                    ", promotionCode='" + sp.getPromotionCode() + '\'' +
+                    ", promotionType=" + sp.getPromotionType() +
+                    ", purchaseType=" + sp.getPurchaseType() +
+                    ", startTimeMillis=" + sp.getStartTimeMillis() +
+                    ", userCancellationTimeMillis=" + sp.getUserCancellationTimeMillis() +
+                    '}';
+        } catch (Exception e) {
+            log.error("subscriptionPurchaseToString got exception", e);
+            return "subscriptionPurchaseToString got exception";
+        }
     }
 
     public boolean isSubscriptionValid(SubscriptionPurchase subscription) {
