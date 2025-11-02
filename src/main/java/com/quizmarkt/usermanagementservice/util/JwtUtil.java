@@ -60,4 +60,19 @@ public class JwtUtil {
         return JWT_SECRET;
     }
 
+    public static String createAdminJWT(Map<String, String> jwtClaims, Date expirationDate, int appId) {
+        try {
+            return Jwts.builder()
+                    .setClaims(getClaims(null,jwtClaims, appId,null))
+                    .setIssuedAt(new Date(System.currentTimeMillis()))
+                    .setExpiration(expirationDate)
+                    .setSubject(REFRESH)
+                    .signWith(getKey())
+                    .compact();
+        } catch (Exception e) {
+            log.error("createAdminJWT got exception appId:{}", appId, e);
+            return null;
+        }
+    }
+
 }

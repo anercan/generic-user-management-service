@@ -46,7 +46,7 @@ public class UserManager extends BaseManager {
         if (Objects.nonNull(filterDto.getId())) {
             conditions.add("id = :id");
             expressionValues.put(":id", new AttributeValue().withS(filterDto.getId()));
-        } else if (Objects.nonNull(filterDto.getPremiumType())) {
+        } else if (Objects.nonNull(filterDto.getPremiumType())) { //todo none olup expiredatei dolu olanlar eklenmeli
             conditions.add("premiumInfo.premiumType = :premiumType");
             expressionValues.put(":premiumType", new AttributeValue().withS(filterDto.getPremiumType().name()));
         } else {
@@ -140,7 +140,7 @@ public class UserManager extends BaseManager {
     public void updateUsersPremiumInfo(User user, PremiumType premiumType) {
         if (user.getPremiumInfo() != null) {
             user.getPremiumInfo().setPremiumType(premiumType);
-            logger.info("updateUsersPremiumInfo users premium info set to {}", premiumType);
+            logger.info("updateUsersPremiumInfo userID:{} premium info set to {}", user.getId(), premiumType);
             userRepository.save(user);
         }
     }

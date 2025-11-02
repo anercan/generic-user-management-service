@@ -24,8 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -186,7 +186,7 @@ public class SignInService {
     public ResponseEntity<SignInResponse> adminSignIn(SignInRequest request) {
         if (UserUtils.verifyAdminLogin(request)) {
             try {
-                String jwt = JwtUtil.createJWT("null", request.getJwtClaims(), Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()), 1, PremiumType.LEVEL1);
+                String jwt = JwtUtil.createAdminJWT(request.getJwtClaims(), Date.from(LocalDateTime.now().plusHours(1).toInstant(ZoneOffset.UTC)), request.getAppId());
                 return ResponseEntity.ok(SignInResponse.builder().jwt(jwt).build());
             } catch (Exception e) {
                 log.error("adminSignIn got exception request:{}", request, e);
