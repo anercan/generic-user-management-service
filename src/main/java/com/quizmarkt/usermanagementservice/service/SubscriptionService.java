@@ -31,7 +31,7 @@ public class SubscriptionService {
 
     public ResponseEntity<UpdatePremiumInfoResponse> googlePlaySubscribe(PremiumInfoRequest request) {
         GoogleSubscriptionRequest googleSubscriptionRequest = request.getGoogleSubscriptionRequest();
-        SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(googleSubscriptionRequest.getProductId(), googleSubscriptionRequest.getTransactionReceipt().getPurchaseToken(), request.getUserId(), request.getAppId());
+        SubscriptionPurchase subscriptionPurchase = googlePlaySubscriptionManager.getSubscriptionData(googleSubscriptionRequest.getProductId(), googleSubscriptionRequest.getPurchaseToken(), request.getUserId(), request.getAppId());
         if (googlePlaySubscriptionManager.isSubscriptionValid(subscriptionPurchase)) {
             UpdatePremiumInfoResponse response = new UpdatePremiumInfoResponse();
             try {

@@ -28,8 +28,6 @@ public class GoogleSubscriptionRequest {
     @DynamoDBAttribute
     private String productId;
     @DynamoDBAttribute
-    private List<String> productIds;
-    @DynamoDBAttribute
     private int purchaseStateAndroid;
     @DynamoDBAttribute
     private String purchaseToken;
