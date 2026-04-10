@@ -15,7 +15,7 @@ public class GoogleSubscriptionRequest {
     private boolean isAutoRenewing;
     private String transactionId;
     private boolean autoRenewingAndroid;
-    private String dataAndroid;
+    private DataAndroid dataAndroid;
     private String signatureAndroid;
     private boolean isAcknowledgedAndroid;
     private String packageNameAndroid;
